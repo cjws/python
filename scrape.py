@@ -1,44 +1,40 @@
 import requests
 import re
 from bs4 import BeautifulSoup
+
 page = requests.get("http://bom.gov.au")
-
-
 soup = BeautifulSoup(page.content, 'html.parser')
 # soup = soup.prettify().encode('utf-8')
-
-
 # print(soup)
+
 print(soup.title.get_text())
 
-
-# capitals = []
-capitals = soup.find_all("div", {"class": "capital"})
-# print(capitals)
-
-# i = 0
-list_capitals_soup = []
-for div in capitals:
-    # print(div.text.encode('utf-8'))
-    list_capitals_soup.append(div)
-actual_list_of_capitals = []
-for capital in list_capitals_soup:
-    # print capital.find("h3").get_text()
-    actual_list_of_capitals.append(capital.find("h3").get_text())
-
-for capital in actual_list_of_capitals:
-    print(capital)
-
-sydney = soup.find("div", {"class": "capital"})
-# # print(sydney)
-
-now = sydney.find("p", {"class": "now"})
-# print(now)
-
-sydney_now = list(now.children)[1]
-# print(sydney_now)
+# Returns the soup for all capital cities
+capitals_soup = soup.find_all("div", {"class": "capital"})
 
 
-temp = sydney_now.get_text().encode('utf-8')
+# Returns a list of capital cities
+list_of_capitals = []
+for capital in capitals_soup:
+    list_of_capitals.append(capital.find("h3").get_text())
 
-print("The current temperature in Sydney is " + temp)
+# Returns the soup for current values
+now_soup = []
+for now in capitals_soup:
+    now_soup.append(now.find("p", {"class": "now"}))
+
+# Returns the soup for for current temperatures
+capitals_now_soup = []
+for temp_soup in now_soup:
+    capitals_now_soup.append(list(temp_soup.children)[1])
+
+# Returns all the temperature values for cities
+temps = []
+for temp in capitals_now_soup:
+    temps.append(temp.get_text().encode('utf-8'))
+
+temp_in_city =[]
+[temp_in_city.append("The current temperature in " + str(city) + " is " + temp) for city, temp in zip(list_of_capitals, temps)]
+
+for weather_report in temp_in_city:
+    print(weather_report)
